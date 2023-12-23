@@ -21,10 +21,18 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 ]"""
 
-from django.urls import path
-from .views import create_user
+from django.contrib import admin
+from django.urls import include, path
+from users.views import create_user, get_user_by_id, get_user_by_email, update_user, user_login, user_logout, get_current_user, refresh_access_token
+
 
 urlpatterns = [
-    path('users/', create_user, name='create_user'),
-    # Aqui você adicionaria mais rotas para outras funcionalidades
+    path('Users/create_user', create_user, name='create_user'),
+    path('Users/<uuid:id>/', get_user_by_id, name='get_user_by_id'),
+    path('Users/<str:email>/', get_user_by_email, name='get_user_by_email'),
+    path('Users/<uuid:id>/', update_user, name='update_user'),
+    path('Users/login/', user_login, name='user_login'),
+    path('Users/logout/', user_logout, name='user_logout'),
+    path('Users/me/', get_current_user, name='get_current_user'),
+    path('Users/refresh/', refresh_access_token, name='refresh_access_token'),
 ]
