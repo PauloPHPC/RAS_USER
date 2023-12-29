@@ -3,21 +3,20 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 import uuid
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, number, role, password=None, **extra_fields):
+    def create_user(self, id, email, name, number, role, password=None, **extra_fields):
         if not email:
             raise ValueError("Email field must be set")
         email = self.normalize_email(email)
-        user = self.model(email=email, name=name, number=number, role=role, **extra_fields)
+        user = self.model(id=id, email=email, name=name, number=number, role=role, **extra_fields)
         user.set_password(password)
-        print(user)
         user.save(using=self._db)
-        print(user)
+
         return user
     
-    def create_superuser(self, email, name, number, role, password=None, **extra_fields):
+    def create_superuser(self,id, email, name, number, role, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, name, number, role, password, **extra_fields)
+        return self.create_user(id,email, name, number, role, password, **extra_fields)
 
     def get_by_natural_key(self, email):
         return self.get(email=email)

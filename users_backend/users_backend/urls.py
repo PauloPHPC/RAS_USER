@@ -35,6 +35,9 @@ urlpatterns += [
     path('users/create_user', views.create_user, name='create_user'),
     path('users/<uuid:id>/', views.get_user_by_id, name='get_user_by_id'),
     path('users/<str:email>/', views.get_user_by_email, name='get_user_by_email'),
+]
+
+urlpatterns += [
     path('users/update/<uuid:id>/', views.update_user, name='update_user'),
     path('users/me/', views.get_current_user, name='get_current_user')
 ]
