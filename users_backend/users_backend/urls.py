@@ -38,7 +38,7 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('users/update/<uuid:id>/', views.update_user, name='update_user'),
+    path('users/update/', views.update_user, name='update_user'),
     path('users/me/', views.get_current_user, name='get_current_user')
 ]
 

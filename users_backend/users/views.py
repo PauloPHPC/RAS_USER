@@ -64,11 +64,11 @@ def get_user_by_email(request, email):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
-def update_user(request, id):
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+def update_user(request):
+    if not request.user.is_authenticated:
+        return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user = request.user
 
     serializer = UpdateUserSerializer(user, data=request.data)
     if serializer.is_valid():
