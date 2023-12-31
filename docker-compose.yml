@@ -15,13 +15,13 @@ services:
   users-mysql:
     image: mysql:latest
     ports:
-      - 5432:5432
+      - 3306:3306
     volumes:
       - users-mysql-data:/var/lib/mysql
     networks:
       - users
     environment:
-      - MYSQL_DATABASE=users
+      - MYSQL_DATABASE=user
       - MYSQL_USER=admin
       - MYSQL_PASSWORD=admin
       - MYSQL_ROOT_PASSWORD=admin
