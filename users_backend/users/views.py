@@ -16,31 +16,36 @@ import requests
 @permission_classes([])
 def create_user(request):
     if request.method == 'POST':
-        password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+        users_data = request.data  # Assumindo que request.data é uma lista de usuários
 
-        first_password = password
+        if not isinstance(users_data, list):
+            users_data = [users_data]
 
-        request.data["password"] = make_password(password)
+        for user_data in users_data:
+            password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+            first_password = password
 
-        serializer = CreateUserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        
-            try:
-                notification_url = f'http://localhost:8000/notifications/credentials/{User.id}/'
+            user_data["password"] = make_password(password)
 
-                notification_data = {
-                    "username": User.email,
-                    "password": first_password,
+            serializer = CreateUserSerializer(data=user_data)
+            if serializer.is_valid():
+                serializer.save()
+
+                try:
+                    notification_url = f'http://localhost:8000/notifications/credentials/{serializer.instance.id}/'
+
+                    notification_data = {
+                        "username": serializer.instance.email,
+                        "password": first_password,
                     }
 
-                send_email = requests.post(notification_url, json=notification_data)
-            except Exception:
-                print('impossible to send email to user')
-            print(first_password)    
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    send_email = requests.post(notification_url, json=notification_data)
+                except Exception:
+                    print('impossible to send email to user')
+                print(first_password)
+
+        return Response("User(s) created successfully", status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([])
@@ -75,6 +80,9 @@ def update_user(request, id):
 
     serializer = UpdateUserSerializer(user, data=request.data)
     if serializer.is_valid():
+        password = serializer.validated_data.get('password')
+        if password:
+            serializer.validated_data['password'] = make_password(password)
         serializer.save()
         return Response({'message': 'Update successful'}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
