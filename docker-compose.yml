@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  users:
+    build: ./users_backend
+    ports:
+      - 8000:8000
+    environment:
+      - TZ=Europe/Lisbon
+    networks:
+      - users
+    depends_on:
+      - users-mysql
+
+  users-mysql:
+    image: mysql:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - users-mysql-data:/var/lib/mysql
+    networks:
+      - users
+    environment:
+      - MYSQL_DATABASE=users
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD=admin
+      - TZ=Europe/Lisbon
+
+volumes:
+  users-mysql-data:
+
+networks:
+  users:
+    driver: bridge
