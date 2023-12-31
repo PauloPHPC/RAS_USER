@@ -21,6 +21,8 @@ def create_user(request):
         if not isinstance(users_data, list):
             users_data = [users_data]
 
+        created_users = []
+
         for user_data in users_data:
             password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
             first_password = password
@@ -30,7 +32,7 @@ def create_user(request):
             serializer = CreateUserSerializer(data=user_data)
             if serializer.is_valid():
                 serializer.save()
-
+                created_users = [serializer.instance]
                 try:
                     notification_url = f'http://localhost:8000/notifications/credentials/{serializer.instance.id}/'
 
@@ -44,7 +46,10 @@ def create_user(request):
                     print('impossible to send email to user')
                 print(first_password)
 
-        return Response("User(s) created successfully", status=status.HTTP_201_CREATED)
+        if created_users:
+            return Response("User(s) created successfully", status=status.HTTP_201_CREATED)
+        else:
+            return Response("Failed to create user(s)", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
