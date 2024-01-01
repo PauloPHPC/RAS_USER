@@ -16,6 +16,10 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['name', 'password', 'email']  # Campos que podem ser atualizados
 
+class CurrentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'name', 'role', 'number']
 # class LoginSerializer(serializers.Serializer):
 #     email = serializers.EmailField()
 #     password = serializers.CharField()

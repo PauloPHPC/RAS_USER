@@ -6,6 +6,7 @@ from .models import User
 from .serializers import GetUserSerializer
 from .serializers import CreateUserSerializer
 from .serializers import UpdateUserSerializer
+from .serializers import CurrentUserSerializer
 from django.contrib.auth.hashers import make_password
 import secrets
 import string
@@ -28,6 +29,8 @@ def create_user(request):
             first_password = password
 
             user_data["password"] = make_password(password)
+
+            user_data.setdefault("role", "student")
 
             serializer = CreateUserSerializer(data=user_data)
             if serializer.is_valid():
@@ -94,10 +97,14 @@ def update_user(request, id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_current_user(request):
-    # Implement your to get the current user information
-    user = request.user  # Assuming you have authentication middleware enabled
-    serializer = GetUserSerializer(user)
+def get_current_user(request, id):
+    # Certifique-se de importar o seu modelo User
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CurrentUserSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(['POST'])
