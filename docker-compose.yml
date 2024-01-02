@@ -27,8 +27,6 @@ services:
     depends_on:
       wait-for-db:
         condition: service_completed_successfully
-    command: >
-      sh -c "python manage.py migrate" 
 
   
   wait-for-db:
