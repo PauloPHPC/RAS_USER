@@ -1,17 +1,6 @@
 version: '3'
 
 services:
-  users:
-    build: ./users_backend
-    ports:
-      - 8000:8000
-    environment:
-      - TZ=Europe/Lisbon
-    networks:
-      - users
-    depends_on:
-      - users-mysql
-
   users-mysql:
     image: mysql:latest
     ports:
@@ -22,10 +11,32 @@ services:
       - users
     environment:
       - MYSQL_DATABASE=user
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+      - MYSQL_ROOT_PASSWORD=admin
       - TZ=Europe/Lisbon
+    
+  users:
+    build: ./users_backend
+    ports:
+      - 8000:8000
+    environment:
+      - TZ=Europe/Lisbon
+    networks:
+      - users
+    depends_on:
+      wait-for-db:
+        condition: service_completed_successfully
+
+  
+  wait-for-db:
+    image: atkrad/wait4x
+    networks:
+      - users
+    depends_on:
+      - users-mysql
+    command: tcp users-mysql:3306 -t 30s -i 250ms
+    
 
 volumes:
   users-mysql-data:
