@@ -8,6 +8,7 @@ from .serializers import CreateUserSerializer
 from .serializers import UpdateUserSerializer
 from .serializers import CurrentUserSerializer
 from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.authentication import JWTStatelessUserAuthentication
 import secrets
 import string
 import requests
@@ -23,7 +24,7 @@ def create_user(request):
             users_data = [users_data]
 
         created_users = []
-
+        response = []
         for user_data in users_data:
             password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
             first_password = password
@@ -37,7 +38,7 @@ def create_user(request):
                 serializer.save()
                 created_users = [serializer.instance]
                 try:
-                    notification_url = f'http://nginx/notifications/credentials/{serializer.instance.id}/'
+                    notification_url = f' http://nginx/notifications/credentials/{serializer.instance.id}/'
 
                     notification_data = {
                         "username": serializer.instance.email,
@@ -48,9 +49,9 @@ def create_user(request):
                 except Exception:
                     print('impossible to send email to user')
                 print(first_password)
-
-        if created_users:
-            return Response("User(s) created successfully", status=status.HTTP_201_CREATED)
+            response.append(user_data)
+        if created_users:          
+            return Response(response, status=status.HTTP_201_CREATED)
         else:
             return Response("Failed to create user(s)", status=status.HTTP_400_BAD_REQUEST)
 
@@ -97,12 +98,8 @@ def update_user(request, id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_current_user(request, id):
-    # Certifique-se de importar o seu modelo User
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+def get_current_user(request):
+    user = request.user
 
     serializer = CurrentUserSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
