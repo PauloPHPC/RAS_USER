@@ -38,7 +38,7 @@ def create_user(request):
                 serializer.save()
                 created_users = [serializer.instance]
                 try:
-                    notification_url = f'http://localhost:8000/notifications/credentials/{serializer.instance.id}/'
+                    notification_url = f' http://nginx/notifications/credentials/{serializer.instance.id}/'
 
                     notification_data = {
                         "username": serializer.instance.email,
