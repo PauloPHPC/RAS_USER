@@ -87,7 +87,7 @@ def update_user(request, id):
     except User.DoesNotExist:
         return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = UpdateUserSerializer(user, data=request.data)
+    serializer = UpdateUserSerializer(user, data=request.data, partial=True)
     if serializer.is_valid():
         password = serializer.validated_data.get('password')
         if password:
